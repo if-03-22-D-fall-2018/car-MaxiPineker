@@ -1,67 +1,91 @@
 #include "car.h"
 #include <stdbool.h>
-
-
-struct CarImplementation{
+const int CAR_PARK_SIZE=6;
+struct CarImplementation
+{
+  enum CarType carType;
   enum Color color;
-  enum CarType type;
-  bool is_rented;
+  bool is_available;
   int max_speed;
   double fill_level;
   double acceleration_rate;
-  int speed;
-  double lowest_acceleration_rate;
-  double highest_acceleration_rate;
+  double speed;
 };
 
+struct CarImplementation aixam { AIXAM, RED, true, 45, 16.0, 0.0, 0.0};
+struct CarImplementation fiat_mutipla1 { FIAT_MULTIPLA, GREEN, true, 170, 65.0, 0.0, 0.0};
+struct CarImplementation fiat_mutipla2 { FIAT_MULTIPLA, BLUE, true, 170, 65.0, 0.0, 0.0};
+struct CarImplementation fiat_mutipla3 { FIAT_MULTIPLA, ORANGE, true, 170, 65.0, 0.0, 0.0};
+struct CarImplementation jeep1 { JEEP, SILVER, true, 196, 80.0, 0.0, 0.0};
+struct CarImplementation jeep2 { JEEP, BLACK, true, 196, 80.0, 0.0, 0.0};
 
-struct CarImplementation aixam1={RED, AIXAM, false, 45,16.0,0.0,0,-8.0,1.0};
-struct CarImplementation fiat_multipla1={GREEN, FIAT_MULTIPLA, false, 170,65.0,0.0,0,-8.0,2.26};
-struct CarImplementation fiat_multipla2={BLUE, FIAT_MULTIPLA, false, 170,65.0,0.0,0,-8.0,2.26};
-struct CarImplementation fiat_multipla3={ORANGE, FIAT_MULTIPLA, false, 170,65.0,0.0,0,-8.0,2.26};
-struct CarImplementation jeep1={SILVER, JEEP, false, 196,80.0,0.0,0,-8.0,3.14};
-struct CarImplementation jeep2={BLACK, JEEP, false, 196,80.0,0.0,0,-8.0,3.14};
 
-Car car_park[]={&aixam1,&fiat_multipla1,&fiat_multipla2,&fiat_multipla3,&jeep1,&jeep2};
+static Car car_park[CAR_PARK_SIZE] = {&aixam,&fiat_mutipla1,&fiat_mutipla2,&fiat_mutipla3,&jeep1,&jeep2};
 
-Car get_car(enum CarType type)
+void init()
 {
-  for (int i = 0; i < 6; i++) {
-    if ((type == car_park[i]->CarImplementation->type)&&(car_park[i].)) {
-      CarImplementation->is_rented = true;
-      return
-    }
+  for (int i = 0; i < CAR_PARK_SIZE; i++)
+  {
+    car_park[i]->is_available=true;
+    car_park[i]->acceleration_rate=0;
+    car_park[i]->speed=0;
   }
 }
+
+Car get_car(enum CarType carType)
+{
+  for (int i = 0; i < CAR_PARK_SIZE; i++)
+  {
+    if (carType==car_park[i]->carType&&car_park[i]->is_available)
+    {
+      car_park[i]->is_available=false;
+      return car_park[i];
+    }
+  }
+  return 0;
+}
+
 enum CarType get_type(Car car)
 {
-  return AIXAM;
+  return car->carType;
 }
 enum Color get_color(Car car)
 {
-  return RED;
+  return car->color;
 }
 double get_fill_level(Car car)
 {
-  return 0;
+  return car->fill_level;
 }
+
 double get_acceleration_rate(Car car)
 {
-  return 0;
+  return car->acceleration_rate;
 }
+
+void set_acceleration_rate(Car car, double acceleration)
+{
+  if (acceleration<-8) acceleration=-8;
+  else if (car->carType==JEEP && acceleration>3.14) acceleration=3.14;
+  else if (car->carType==AIXAM && acceleration>1.0) acceleration=1.0;
+  else if (car->carType==FIAT_MULTIPLA && acceleration>2.26) acceleration=2.26;
+  car->acceleration_rate=acceleration;
+}
+
 int get_speed(Car car)
 {
-  return 0;
+  return car->speed+0.5;
 }
+
 void accelerate(Car car)
 {
-
-}
-void init()
-{
-
-}
-void set_acceleration_rate(Car car,double acceleration)
-{
-
+  double velocity = get_acceleration_rate(car) * 3.6;
+  if (velocity+get_speed(car)<= car->max_speed)
+  {
+    car->speed+=velocity;
+  }
+  else
+  {
+    car->speed=car->max_speed;
+  }
 }
